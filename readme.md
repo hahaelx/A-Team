@@ -10,6 +10,11 @@ Tailored to your goals and the way you work.
 
 [English](#english) · [繁體中文](#繁體中文)
 
+> **本 fork 的用途（hahaelx/A-Team）**
+>
+> 除了 A-Team 本體，這個 fork 另外維護 [`teams/spec-demo-team/`](teams/spec-demo-team/README.md)：給虛擬資產 PoC 團隊使用的「多人寫規格 → 測試先行 → 自動部署到 AWS」開發團隊範本（含 Bedrock）。
+> A-Team 本體檔案保持與上游一致，同步方式見 [`UPSTREAM.md`](UPSTREAM.md)。
+
 The Grok-adapted version of A-Team lives on the branch `chemistrywow31/grok-native`. It designs teams for **Grok Build**. To get it, run `git checkout chemistrywow31/grok-native`.
 
 為 Grok 改編的 A-Team 在分支 `chemistrywow31/grok-native`。這一版為 **Grok Build** 設計團隊。取得方式：`git checkout chemistrywow31/grok-native`。

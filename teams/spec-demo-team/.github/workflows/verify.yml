@@ -1,0 +1,26 @@
+# 共用驗證：lint、型別檢查、TDD 檢查、單元測試（含覆蓋率門檻）、前端 build、cdk synth
+name: verify
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run tdd:check
+      - run: npm test
+      - run: npm run build
+      - name: cdk synth
+        run: npx -w infra cdk synth --quiet -c stage=ci -c bedrockModelId=ci-synth-check

@@ -1,0 +1,83 @@
+# main：驗證通過 → 部署 demo 環境 → E2E 驗收測試
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  deploy-demo:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: demo
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      site_url: ${{ steps.out.outputs.site_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-east-2' }}
+      - run: npm ci
+      - run: npm run build
+      - name: Basic Auth 設定
+        env:
+          USER: ${{ secrets.BASIC_AUTH_USER }}
+          PASS: ${{ secrets.BASIC_AUTH_PASSWORD }}
+        run: |
+          B64=$(printf '%s:%s' "$USER" "$PASS" | base64 -w0)
+          echo "::add-mask::$B64"
+          echo "BASIC_AUTH_B64=$B64" >> "$GITHUB_ENV"
+      - name: cdk deploy
+        run: >
+          npx -w infra cdk deploy SpecDemo-demo --require-approval never --outputs-file cdk-outputs.json
+          -c stage=demo
+          -c appRegion="${{ vars.AWS_REGION || 'ap-east-2' }}"
+          -c bedrockRegion="${{ vars.BEDROCK_REGION }}"
+          -c bedrockModelId="${{ vars.BEDROCK_MODEL_ID }}"
+          -c basicAuth="$BASIC_AUTH_B64"
+      - id: out
+        run: echo "site_url=$(node -p "require('./infra/cdk-outputs.json')['SpecDemo-demo'].SiteUrl")" >> "$GITHUB_OUTPUT"
+      - run: echo "### 🚀 Demo 環境：${{ steps.out.outputs.site_url }}" >> "$GITHUB_STEP_SUMMARY"
+
+  e2e:
+    needs: deploy-demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: E2E 驗收測試
+        env:
+          E2E_BASE_URL: ${{ needs.deploy-demo.outputs.site_url }}
+          E2E_BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
+          E2E_BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
+        run: npm run test:e2e
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-demo
+          path: |
+            playwright-report/
+            tests/e2e/screenshots/

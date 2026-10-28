@@ -1,0 +1,20 @@
+# 將下列帳號或團隊換成你們實際的 GitHub 帳號／團隊（需要 GitHub Team 方案才能在私有 repo 強制要求 code owner review）
+
+# 預設：工程師 review 程式碼
+*                               @your-org/engineers
+
+# Gate 1：需求由 BU 與 PM 確認
+specs/**/requirements.md        @your-org/bu @your-org/pm
+specs/**/uat.md                 @your-org/bu @your-org/pm
+
+# Gate 2：設計與基礎設施由架構師核准
+specs/**/design.md              @your-org/architects
+docs/architecture.md            @your-org/architects
+docs/decisions/                 @your-org/architects
+infra/                          @your-org/architects
+
+# 流程與規則：只有架構師可以修改
+.github/                        @your-org/architects
+.claude/                        @your-org/architects
+CLAUDE.md                       @your-org/architects
+scripts/                        @your-org/architects

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+cdk.out/
+cdk.context.json
+playwright-report/
+test-results/
+tests/e2e/screenshots/
+.env
+.env.*
+.claude/settings.local.json
+CLAUDE.local.md
+cdk-outputs.json

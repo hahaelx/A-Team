@@ -28,6 +28,7 @@ teams/*.zip
 # Generated teams — only whitelisted teams are tracked
 teams/*/
 !teams/life-partners/
+!teams/spec-demo-team/
 
 # Third-party / locally-installed skills (not part of A-Team source)
 article-image-generator/

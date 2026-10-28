@@ -1,0 +1,36 @@
+# PR 關閉時刪除預覽環境，避免持續產生費用
+name: cleanup-preview
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment: preview
+    env:
+      STAGE: pr-${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-east-2' }}
+      - run: npm ci
+      - run: npm run build
+      - name: cdk destroy
+        run: >
+          npx -w infra cdk destroy "SpecDemo-$STAGE" --force
+          -c stage="$STAGE"
+          -c appRegion="${{ vars.AWS_REGION || 'ap-east-2' }}"
+          -c bedrockModelId="${{ vars.BEDROCK_MODEL_ID }}"
