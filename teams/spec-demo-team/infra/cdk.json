@@ -1,0 +1,10 @@
+{
+  "app": "npx tsx bin/app.ts",
+  "context": {
+    "appRegion": "ap-east-2",
+    "bedrockRegion": "ap-east-2",
+    "bedrockModelId": "",
+    "stage": "dev",
+    "githubRepo": ""
+  }
+}

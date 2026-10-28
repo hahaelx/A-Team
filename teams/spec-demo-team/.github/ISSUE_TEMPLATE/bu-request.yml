@@ -1,0 +1,47 @@
+name: 需求申請（BU）
+description: 提出新的 demo 需求，會由 AI 整理成規格初稿
+title: "[需求] "
+labels: ["spec:draft"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        請用平常說話的方式描述即可，不需要技術用語。送出後，PM 會請 AI 整理成規格，並在這裡請你確認。
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景：現在遇到什麼問題？
+      placeholder: 例如：客戶常常搞不清楚出金為什麼要等待，客服每天要回答很多次。
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 希望達成什麼？
+      placeholder: 例如：客戶可以自己在畫面上看到出金進度與預計完成時間。
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: 怎樣算成功？（盡量給數字）
+      placeholder: 例如：客戶 3 次點擊內就能看到進度；客服相關詢問減少 30%。
+    validations:
+      required: true
+  - type: textarea
+    id: rules
+    attributes:
+      label: 有沒有一定要遵守的規則？（法遵、風控、限額）
+      placeholder: 例如：新增白名單地址 24 小時後才能出金。
+  - type: input
+    id: deadline
+    attributes:
+      label: 希望什麼時候看到 demo？
+      placeholder: 例如：2026-11-15
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先順序
+      options: ["高", "中", "低"]
+    validations:
+      required: true
